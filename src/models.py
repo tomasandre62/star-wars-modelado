@@ -7,31 +7,51 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+class Usuario(Base):
+    __tablename__ = 'usuarios'
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    nombre = Column(String)
+    email = Column(String, unique=True)
+    password = Column(String)  
+    fecha_registro = Column(String)
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Planeta(Base):
+    __tablename__ = 'planetas'
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    nombre = Column(String)  
+    diametro = Column(Integer)
+    periodo_rotacion = Column(Integer)
+    residentes = Column(Integer, ForeignKey('personajes.id'))
+    peliculas = Column(Integer, ForeignKey('peliculas.id'))
 
-    def to_dict(self):
-        return {}
+class Personaje(Base):
+    __tablename__ = 'personajes'
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String)
+    altura = Column(Integer)
+    planetas = Column(Integer, ForeignKey('planetas.id'))
+    peliculas = Column(Integer, ForeignKey('peliculas.id'))
 
-## Draw from SQLAlchemy base
+class Pelicula(Base):
+    __tablename__ = 'peliculas'
+    id = Column(Integer, primary_key=True)
+    titulo = Column(String)
+    episodio_id = Column(Integer)
+    planeta = Column(Integer, ForeignKey('planetas.id'))  
+    personajes = Column(Integer, ForeignKey('personajes.id')) 
+
+class Favorito(Base):
+    __tablename__ = 'favoritos'
+    id = Column(Integer, primary_key=True)
+    usuario_id = Column(Integer, ForeignKey('usuarios.id'))  
+    planeta_id = Column(Integer, ForeignKey('planetas.id'))  
+    personajes_id = Column(Integer, ForeignKey('personajes.id')) 
+    tipo = Column(String)
+    usuario = relationship("Usuario", back_populates="favoritos")
+
+
 try:
-    result = render_er(Base, 'diagram.png')
-    print("Success! Check the diagram.png file")
+    result = render_er(Base, 'diagrama_star_wars.png')
+    print("¡Diagrama generado exitosamente! Busca el archivo diagrama_star_wars.png")
 except Exception as e:
-    print("There was a problem genering the diagram")
-    raise e
+    print("Hubo un problema al generar el diagrama:", e)
